@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOP 回复助手</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; margin: 0; display: flex; height: 100vh; background: #f0f2f5; }
+        .left { width: 40%; padding: 20px; display: flex; flex-direction: column; background: white; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
+        .right { width: 60%; padding: 20px; overflow-y: auto; }
+        textarea { flex-grow: 1; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; outline: none; transition: 0.3s; }
+        textarea:focus { border-color: #007AFF; }
+        button { margin-top: 15px; padding: 12px; background: #007AFF; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 18px; font-weight: bold; }
+        button:hover { background: #0056b3; }
+        .card { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 6px solid #007AFF; position: relative; }
+        .copy-tag { position: absolute; top: 15px; right: 15px; background: #eef6ff; color: #007AFF; padding: 4px 10px; border-radius: 5px; font-size: 12px; cursor: pointer; border: 1px solid #007AFF; }
+        .copy-tag:active { background: #007AFF; color: white; }
+        h3 { margin-top: 0; color: #333; }
+        p { color: #555; line-height: 1.6; font-size: 16px; margin-bottom: 0; }
+    </style>
+</head>
+<body>
+
+<div class="left">
+    <h2 style="margin-top:0">🔍 查找 SOP</h2>
+    <textarea id="userInput" placeholder="把客户的问题直接粘贴在这里..."></textarea>
+    <button onclick="search()">立即匹配回复</button>
+</div>
+
+<div class="right" id="results">
+    <div style="text-align: center; color: #999; margin-top: 100px;">输入问题后，这里会显示推荐回复</div>
+</div>
+
+<script>
+    // 【这里就是你的数据库，以后要加新回复就照着格式写】
+    const database = [
+        { key: ["价格", "多少钱", "贵", "折扣", "便宜"], reply: "您好！我们的产品定价是经过严格成本核算的，目前正处于促销期，买二送一非常划算。虽然价格不是最低，但品质绝对有保障。" },
+        { key: ["发货", "快递", "到货", "几天"], reply: "亲，我们默认发顺丰/圆通。下单后24小时内准时发货，预计3天左右可以送到您的手上。" },
+        { key: ["正品", "质量", "假货", "保证"], reply: "请放心，我们是品牌直营，支持专柜验货，每一件产品都有独立编码，假一赔十。" }
+    ];
+
+    function search() {
+        const input = document.getElementById('userInput').value.toLowerCase();
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = "";
+        
+        const found = database.filter(item => item.key.some(k => input.includes(k)));
+
+        if (found.length > 0) {
+            found.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML = `
+                    <span class="copy-tag" onclick="copy('${item.reply.replace(/'/g, "\\'")}')">点击复制</span>
+                    <h3>匹配到的回复：</h3>
+                    <p>${item.reply}</p>
+                `;
+                resultsDiv.appendChild(div);
+            });
+        } else {
+            resultsDiv.innerHTML = "<p style='text-align:center; color:red;'>未找到匹配内容，请尝试输入更简单的词（如：价格、发货）</p>";
+        }
+    }
+
+    function copy(text) {
+        navigator.clipboard.writeText(text);
+        alert("已成功复制话术！可以直接去粘贴了。");
+    }
+</script>
+</body>
+</html>
